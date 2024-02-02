@@ -3,7 +3,6 @@
         "module": "ESNext",
         "moduleResolution": "Node",
         "target": "ES2020",
-        "js": "react",
         "allowImportingTsExtensions": true,
         "strictNullChecks": true,
         "strictFunctionTypes": true
