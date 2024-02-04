@@ -66,3 +66,8 @@ main::-webkit-scrollbar {
   right: -6px;
   width: 19px;
 }
+
+.error-input {
+  color: red;
+  font-size: 12px;
+}
