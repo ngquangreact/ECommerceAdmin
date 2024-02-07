@@ -137,9 +137,9 @@ const MainLayout = () => {
               ],
             },
             {
-              key: "enquires",
+              key: "enquiries",
               icon: <FaBloggerB className="fs-4" />,
-              label: "Enquires",
+              label: "Enquiries",
             },
           ]}
         />

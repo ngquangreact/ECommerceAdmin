@@ -1,38 +1,51 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Button, Table } from "antd";
+import { useDispatch, useSelector } from "react-redux";
+import { getAllColor } from "../features/color/colorSlice";
+import { Link } from "react-router-dom";
+import { BiEdit } from "react-icons/bi";
+import { AiFillDelete } from "react-icons/ai";
 const columns = [
   {
     title: "SNo",
     dataIndex: "key",
   },
   {
-    title: "Name",
-    dataIndex: "name",
+    title: "Title",
+    dataIndex: "title",
   },
   {
-    title: "Product",
-    dataIndex: "product",
-  },
-  {
-    title: "Status",
-    dataIndex: "status",
+    title: "Action",
+    dataIndex: "action",
   },
 ];
-const data1 = [];
-for (let i = 0; i < 46; i++) {
-  data1.push({
-    key: i,
-    name: `Edward King ${i}`,
-    product: 32,
-    status: `London, Park Lane no. ${i}`,
-  });
-}
 const ColorList = () => {
+  const dispatch = useDispatch();
+  useEffect(() => {
+    dispatch(getAllColor());
+  }, []);
+  const { colors } = useSelector((state) => state.color);
+  const newColors = colors.map((color, index) => {
+    return {
+      key: index + 1,
+      title: color.title,
+      action: (
+        <>
+          <Link className="fs-3">
+            <BiEdit />
+          </Link>
+          <Link className="ms-3 fs-3 text-danger">
+            <AiFillDelete />
+          </Link>
+        </>
+      ),
+    };
+  });
   return (
     <div>
       <h3 className="mb-4 title">Colors</h3>
       <div>
-        <Table columns={columns} dataSource={data1} />
+        <Table columns={columns} dataSource={newColors} />
       </div>
     </div>
   );

@@ -28,16 +28,13 @@ const Login = () => {
   const { user, isError, isLoading, isSuccess, message } = useSelector(
     (state) => state.auth
   );
-  console.log("render");
   useEffect(() => {
-    console.log("effect-render");
     if (isSuccess) {
       navigate("admin");
     } else {
       navigate("");
     }
   }, [user, isError, isLoading, isSuccess, message]);
-  console.log(message);
   return (
     <div className="py-5" style={{ background: "#ffd333", height: "100vh" }}>
       <br />

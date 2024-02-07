@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Button, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllblog } from "../features/blog/blogSlice";
+import { getAllProductCategory } from "../features/productCategory/productCategorySlice";
 import { Link } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
@@ -16,27 +16,24 @@ const columns = [
     dataIndex: "title",
   },
   {
-    title: "Category",
-    dataIndex: "category",
-  },
-  {
-    title: "Views",
-    dataIndex: "numViews",
-  },
-  {
     title: "Action",
     dataIndex: "action",
   },
 ];
-const BlogList = () => {
+
+const ProductCategoryList = () => {
   const dispatch = useDispatch();
+
   useEffect(() => {
-    dispatch(getAllblog());
+    dispatch(getAllProductCategory());
   }, []);
-  const { blogs } = useSelector((state) => state.blog);
-  const newBlogs = blogs.map((blog, index) => {
+
+  const { productCategories } = useSelector((state) => state.productCategory);
+
+  const newProductCategories = productCategories.map((proCat, index) => {
     return {
       key: index + 1,
+      title: proCat.title,
       action: (
         <>
           <Link className="fs-3">
@@ -47,17 +44,16 @@ const BlogList = () => {
           </Link>
         </>
       ),
-      ...blog,
     };
   });
   return (
     <div>
-      <h3 className="mb-4 title">BlogList</h3>
+      <h3 className="mb-4 title">Product Categories</h3>
       <div>
-        <Table columns={columns} dataSource={newBlogs} />
+        <Table columns={columns} dataSource={newProductCategories} />
       </div>
     </div>
   );
 };
 
-export default BlogList;
+export default ProductCategoryList;
