@@ -24,8 +24,8 @@ const columns = [
     dataIndex: "category",
   },
   {
-    title: "Color",
-    dataIndex: "color",
+    title: "Colors",
+    dataIndex: "colors",
   },
   {
     title: "Price",
@@ -47,12 +47,14 @@ const ProductList = () => {
     (state) => state.product
   );
   const newProducts = products.map((product, index) => {
+    console.log(typeof product.color);
+    console.log(product.color);
     return {
       key: index + 1,
       title: product.title,
       brand: product.brand,
       category: product.category,
-      color: product.color,
+      colors: product.colors.map((c) => c.title).toString(),
       price: `$ ${product.price}`,
       action: (
         <>
