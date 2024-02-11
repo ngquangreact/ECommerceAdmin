@@ -24,6 +24,7 @@ const BrandList = () => {
   useEffect(() => {
     dispatch(getAllBrand());
   }, []);
+  
   const { brands } = useSelector((state) => state.brand);
   const newBrands = brands.map((brand, index) => {
     return {

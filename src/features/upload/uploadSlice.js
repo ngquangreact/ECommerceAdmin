@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, createAction } from "@reduxjs/toolkit";
 import uploadServices from "./uploadServices";
 
 export const uploadImages = createAsyncThunk(
@@ -28,8 +28,9 @@ export const deleteImage = createAsyncThunk(
   }
 );
 
+export const resetImageState = createAction("reset_all");
 export const initialState = {
-  prodImages: [],
+  images: [],
   isLoading: false,
   isError: false,
   isSuccess: false,
@@ -49,7 +50,7 @@ export const uploadSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.prodImages = [action.payload[0], ...state.prodImages];
+        state.images = [action.payload[0], ...state.images];
       })
       .addCase(uploadImages.rejected, (state, action) => {
         state.isLoading = false;
@@ -64,7 +65,7 @@ export const uploadSlice = createSlice({
         state.isLoading = false;
         state.isError = false;
         state.isSuccess = true;
-        state.prodImages = state.prodImages.filter(
+        state.images = state.images.filter(
           (img) => img.public_id !== action.meta.arg
         );
       })
@@ -73,7 +74,8 @@ export const uploadSlice = createSlice({
         state.isError = true;
         state.isSuccess = false;
         state.message = action.error;
-      });
+      })
+      .addCase(resetImageState, () => initialState);
   },
 });
 

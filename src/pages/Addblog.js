@@ -1,37 +1,71 @@
-import { useState } from "react";
-import CustomInput from "../components/CustomInput";
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import * as Yup from "yup";
+import { useFormik } from "formik";
+import "react-widgets/styles.css";
+import Dropzone from "react-dropzone";
+import { toast } from "react-toastify";
+
+import CustomInput from "../components/CustomInput";
+import { useNavigate } from "react-router-dom";
+import { deleteImage, uploadImages } from "../features/upload/uploadSlice";
+
 import { Stepper } from "react-form-stepper";
+import { createBlog, resetState } from "../features/blog/blogSlice";
+import { resetImageState } from "../features/upload/uploadSlice";
+import { getAllBlogCategory } from "../features/blogCategory/blogCategorySlice";
 
-import { InboxOutlined } from "@ant-design/icons";
-import { message, Upload } from "antd";
-const { Dragger } = Upload;
-const props = {
-  name: "file",
-  multiple: true,
-  action: "https://run.mocky.io/v3/435e224c-44fb-4773-9faf-380c5e6a2188",
-  onChange(info) {
-    const { status } = info.file;
-    if (status !== "uploading") {
-      console.log(info.file, info.fileList);
-    }
-    if (status === "done") {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (status === "error") {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  },
-  onDrop(e) {
-    console.log("Dropped files", e.dataTransfer.files);
-  },
-};
-
+let schema = Yup.object().shape({
+  title: Yup.string().required("Title is required !"),
+  description: Yup.string().required("Description is required !"),
+  category: Yup.string().required("Category is required !"),
+  images: Yup.array().test({
+    message: "Images is required !",
+    test: (arr) => arr.length > 0,
+  }),
+});
 const Addblog = () => {
-  const [desc, setDesc] = useState();
-  const handleDesc = (e) => {
-    console.log(e);
-  };
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  useEffect(() => {
+    dispatch(getAllBlogCategory());
+  }, []);
+  const { blogCategories } = useSelector((state) => state.blogCategory);
+  const { images } = useSelector((state) => state.upload);
+  const { isSuccess, isError, createdBlog } = useSelector(
+    (state) => state.blog
+  );
+  useEffect(() => {
+    if (isSuccess && createdBlog) {
+      toast("Created New Blog!");
+    }
+    if (isError) {
+      toast.error("Something went wrong!");
+    }
+  }, [isSuccess, isError]);
+  const formik = useFormik({
+    initialValues: {
+      title: "",
+      description: "",
+      category: "",
+      images: [],
+    },
+    validationSchema: schema,
+    onSubmit: (values) => {
+      dispatch(createBlog(values));
+      formik.resetForm();
+      setTimeout(() => {
+        dispatch(resetState());
+        dispatch(resetImageState());
+        navigate("/admin/blog-list");
+      }, 3000);
+    },
+  });
+  formik.values.images = images;
+
   return (
     <div>
       <h3 className="mb-4 title">Add Blog</h3>
@@ -44,26 +78,90 @@ const Addblog = () => {
         activeStep={1}
       />
       <div className="">
-        <form action="">
-          <Dragger {...props}>
-            <p className="ant-upload-drag-icon">
-              <InboxOutlined />
-            </p>
-            <p className="ant-upload-text">
-              Click or drag file to this area to upload
-            </p>
-            <p className="ant-upload-hint">
-              Support for a single or bulk upload. Strictly prohibited from
-              uploading company data or other banned files.
-            </p>
-          </Dragger>
+        <form onSubmit={formik.handleSubmit}>
           <div className="mt-3">
-            <CustomInput type="text" label="Enter Blog Title" />
+            <CustomInput
+              type="text"
+              label="Enter Blog Title"
+              name="title"
+              onCh={formik.handleChange("title")}
+              onBl={formik.handleBlur("title")}
+              val={formik.values.title}
+            />
           </div>
-          <select className="form-control py-3 mb-3" name="" id="">
+          <div className="error-input">
+            {formik.touched.title && formik.errors.title}
+          </div>
+          <select
+            className="form-control py-3 mt-3"
+            name="category"
+            onChange={formik.handleChange("category")}
+            onBlur={formik.handleBlur("category")}
+            value={formik.values.category}
+          >
             <option value="">Select Blog Category</option>
+            {blogCategories.map((proCat) => {
+              return (
+                <option key={proCat._id} value={proCat.title}>
+                  {proCat.title}
+                </option>
+              );
+            })}
           </select>
-          <ReactQuill theme="snow" value={desc} onChange={handleDesc} />
+          <div className="error-input">
+            {formik.touched.category && formik.errors.category}
+          </div>
+          <div className="mt-3">
+            <ReactQuill
+              theme="snow"
+              name="description"
+              value={formik.values.description}
+              onChange={formik.handleChange("description")}
+            />
+          </div>
+          <div className="error-input">
+            {formik.touched.description && formik.errors.description}
+          </div>
+          <div className="bg-white border-1 p-5 text-center mt-3">
+            <Dropzone
+              onDrop={(acceptedFiles) => {
+                dispatch(uploadImages(acceptedFiles));
+              }}
+            >
+              {({ getRootProps, getInputProps }) => (
+                <section>
+                  <div {...getRootProps()}>
+                    <input {...getInputProps()} />
+                    <p>
+                      Drag 'n' drop some files here, or click to select files
+                    </p>
+                  </div>
+                </section>
+              )}
+            </Dropzone>
+          </div>
+          <div className="error-input">
+            {formik.touched.images && formik.errors.images}
+          </div>
+          <div className="show-image d-flex flex-wrap gap-3 mt-3">
+            {formik.values.images?.map((img) => {
+              return (
+                <div className="position-relative" key={img.url}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      {
+                        dispatch(deleteImage(img.public_id));
+                      }
+                    }}
+                    className="btn-close position-absolute"
+                    style={{ top: "4px", right: "4px" }}
+                  ></button>
+                  <img src={img.url} width={200} height={200} />
+                </div>
+              );
+            })}
+          </div>
           <button className="btn btn-success border-0 rounded-3 my-5">
             Add Blog
           </button>

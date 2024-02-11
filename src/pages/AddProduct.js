@@ -14,9 +14,13 @@ import Dropzone from "react-dropzone";
 import { toast } from "react-toastify";
 
 import CustomInput from "../components/CustomInput";
-import { deleteImage, uploadImages } from "../features/upload/uploadSlice";
-import { createProduct } from "../features/product/productSlice";
 import { useNavigate } from "react-router-dom";
+import {
+  deleteImage,
+  resetImageState,
+  uploadImages,
+} from "../features/upload/uploadSlice";
+import { createProduct, resetState } from "../features/product/productSlice";
 
 const AddProduct = () => {
   const dispatch = useDispatch();
@@ -38,11 +42,10 @@ const AddProduct = () => {
   const { brands } = useSelector((state) => state.brand);
   const { productCategories } = useSelector((state) => state.productCategory);
   const { colors } = useSelector((state) => state.color);
-  const { prodImages } = useSelector((state) => state.upload);
+  const { images } = useSelector((state) => state.upload);
   const { isSuccess, isError, createdProduct } = useSelector(
     (state) => state.product
   );
-  console.log(isSuccess);
   useEffect(() => {
     if (isSuccess && createdProduct) {
       toast("Created New Product!");
@@ -86,11 +89,13 @@ const AddProduct = () => {
       dispatch(createProduct(values));
       formik.resetForm();
       setTimeout(() => {
+        dispatch(resetState());
+        dispatch(resetImageState());
         navigate("/admin/product-list");
       }, 3000);
     },
   });
-  formik.values.images = prodImages;
+  formik.values.images = images;
 
   return (
     <div>
