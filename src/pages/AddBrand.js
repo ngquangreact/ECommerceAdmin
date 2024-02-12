@@ -24,6 +24,7 @@ const AddBrand = () => {
 
   const { isSuccess, isError, createdBrand, nameBrand, updatedBrand } =
     useSelector((state) => state.brand);
+    
   useEffect(() => {
     if (getBrandId !== undefined) {
       dispatch(getBrand(getBrandId));

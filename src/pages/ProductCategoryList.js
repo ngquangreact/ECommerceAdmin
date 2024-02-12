@@ -1,10 +1,14 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
-import { getAllProductCategory } from "../features/productCategory/productCategorySlice";
+import {
+  deleteProductCategory,
+  getAllProductCategory,
+} from "../features/productCategory/productCategorySlice";
 import { Link } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
+import CustomModal from "../components/CustomModal";
 
 const columns = [
   {
@@ -22,6 +26,15 @@ const columns = [
 ];
 
 const ProductCategoryList = () => {
+  const [productCategoryId, setProductCategoryId] = useState();
+  const [open, setOpen] = useState(false);
+  const showModal = (id) => {
+    setOpen(true);
+    setProductCategoryId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
   const dispatch = useDispatch();
 
   useEffect(() => {
@@ -36,12 +49,15 @@ const ProductCategoryList = () => {
       title: proCat.title,
       action: (
         <>
-          <Link className="fs-3">
+          <Link className="fs-3" to={`/admin/category/${proCat._id}`}>
             <BiEdit />
           </Link>
-          <Link className="ms-3 fs-3 text-danger">
+          <button
+            className="ms-3 fs-3 text-danger bg-transparent border-0"
+            onClick={() => showModal(proCat._id)}
+          >
             <AiFillDelete />
-          </Link>
+          </button>
         </>
       ),
     };
@@ -51,6 +67,18 @@ const ProductCategoryList = () => {
       <h3 className="mb-4 title">Product Categories</h3>
       <div>
         <Table columns={columns} dataSource={newProductCategories} />
+        <CustomModal
+          title={`Are you sure delete this product category ?`}
+          hideModal={() => hideModal(productCategoryId)}
+          performAction={() => {
+            dispatch(deleteProductCategory(productCategoryId));
+            setOpen(false);
+            setTimeout(() => {
+              dispatch(getAllProductCategory());
+            }, 200);
+          }}
+          open={open}
+        />
       </div>
     </div>
   );

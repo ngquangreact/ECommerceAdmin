@@ -18,9 +18,40 @@ const createProductCategory = async (pCategoryData) => {
   return response.data;
 };
 
+const getProductCategory = async (id) => {
+  const response = await axios.get(
+    `${baseUrl}prod-category/${id}`,
+    headersConfig
+  );
+
+  return response.data;
+};
+
+const updateProductCategory = async (data) => {
+  const response = await axios.put(
+    `${baseUrl}prod-category/${data.id}`,
+    data.productCategoryData,
+    headersConfig
+  );
+
+  return response.data;
+};
+
+const deleteProductCategory = async (id) => {
+  const response = await axios.delete(
+    `${baseUrl}prod-category/${id}`,
+    headersConfig
+  );
+
+  return response.data;
+};
+
 const productCategoryServices = {
   getAllProductCategory,
   createProductCategory,
+  getProductCategory,
+  updateProductCategory,
+  deleteProductCategory,
 };
 
 export default productCategoryServices;
