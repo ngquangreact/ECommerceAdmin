@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import { Button, Table } from "antd";
-import { getAllBrand } from "../features/brand/brandSlice";
+import { getAllCoupon } from "../features/coupon/couponSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
@@ -11,25 +11,35 @@ const columns = [
     dataIndex: "key",
   },
   {
-    title: "Title",
-    dataIndex: "title",
+    title: "Name",
+    dataIndex: "name",
+  },
+  {
+    title: "Expiry",
+    dataIndex: "expiry",
+  },
+  {
+    title: "Discount",
+    dataIndex: "discount",
   },
   {
     title: "Action",
     dataIndex: "action",
   },
 ];
-const BrandList = () => {
+const CouponList = () => {
   const dispatch = useDispatch();
   useEffect(() => {
-    dispatch(getAllBrand());
+    dispatch(getAllCoupon());
   }, []);
 
-  const { brands } = useSelector((state) => state.brand);
-  const newBrands = brands.map((brand, index) => {
+  const { coupons } = useSelector((state) => state.coupon);
+  const newCoupons = coupons.map((coupon, index) => {
     return {
       key: index + 1,
-      title: brand.title,
+      name: coupon.name,
+      expiry: new Date(coupon.expiry).toLocaleString(),
+      discount: coupon.discount,
       action: (
         <>
           <Link className="fs-3">
@@ -44,12 +54,12 @@ const BrandList = () => {
   });
   return (
     <div>
-      <h3 className="mb-4 title">Brands</h3>
+      <h3 className="mb-4 title">Coupons</h3>
       <div>
-        <Table columns={columns} dataSource={newBrands} />
+        <Table columns={columns} dataSource={newCoupons} />
       </div>
     </div>
   );
 };
 
-export default BrandList;
+export default CouponList;
