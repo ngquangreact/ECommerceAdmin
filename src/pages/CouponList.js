@@ -1,10 +1,15 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Table } from "antd";
-import { getAllCoupon } from "../features/coupon/couponSlice";
+import {
+  deleteCoupon,
+  getAllCoupon,
+  getCoupon,
+} from "../features/coupon/couponSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { BiEdit } from "react-icons/bi";
 import { AiFillDelete } from "react-icons/ai";
+import CustomModal from "../components/CustomModal";
 const columns = [
   {
     title: "SNo",
@@ -28,6 +33,16 @@ const columns = [
   },
 ];
 const CouponList = () => {
+  const [open, setOpen] = useState(false);
+  const [couponId, setCouponId] = useState();
+  const showModal = (id) => {
+    setOpen(true);
+    setCouponId(id);
+  };
+  const hideModal = () => {
+    setOpen(false);
+  };
+
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(getAllCoupon());
@@ -42,12 +57,15 @@ const CouponList = () => {
       discount: coupon.discount,
       action: (
         <>
-          <Link className="fs-3">
+          <Link className="fs-3" to={`/admin/coupon/${coupon._id}`}>
             <BiEdit />
           </Link>
-          <Link className="ms-3 fs-3 text-danger">
+          <button
+            className="ms-3 fs-3 text-danger border-0 bg-transparent"
+            onClick={() => showModal(coupon._id)}
+          >
             <AiFillDelete />
-          </Link>
+          </button>
         </>
       ),
     };
@@ -57,6 +75,18 @@ const CouponList = () => {
       <h3 className="mb-4 title">Coupons</h3>
       <div>
         <Table columns={columns} dataSource={newCoupons} />
+        <CustomModal
+          title={`Are you sure delete this coupon ?`}
+          hideModal={() => hideModal(couponId)}
+          performAction={() => {
+            dispatch(deleteCoupon(couponId));
+            setOpen(false);
+            setTimeout(() => {
+              dispatch(getAllCoupon());
+            }, 200);
+          }}
+          open={open}
+        />
       </div>
     </div>
   );
