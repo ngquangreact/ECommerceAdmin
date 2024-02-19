@@ -19,7 +19,6 @@ export const uploadImages = createAsyncThunk(
 export const deleteImage = createAsyncThunk(
   "delete/images",
   async (id, thunkAPI) => {
-    console.log(id);
     try {
       return await uploadServices.deleteImg(id);
     } catch (error) {

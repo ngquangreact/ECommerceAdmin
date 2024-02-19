@@ -10,11 +10,16 @@ import Dropzone from "react-dropzone";
 import { toast } from "react-toastify";
 
 import CustomInput from "../components/CustomInput";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { deleteImage, uploadImages } from "../features/upload/uploadSlice";
 
 import { Stepper } from "react-form-stepper";
-import { createBlog, resetState } from "../features/blog/blogSlice";
+import {
+  createBlog,
+  getBlog,
+  resetState,
+  updateBlog,
+} from "../features/blog/blogSlice";
 import { resetImageState } from "../features/upload/uploadSlice";
 import { getAllBlogCategory } from "../features/blogCategory/blogCategorySlice";
 
@@ -27,35 +32,58 @@ let schema = Yup.object().shape({
     test: (arr) => arr.length > 0,
   }),
 });
+
 const Addblog = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  useEffect(() => {
-    dispatch(getAllBlogCategory());
-  }, []);
+  const location = useLocation();
+  const getBlogId = location.pathname.split("/")[3];
   const { blogCategories } = useSelector((state) => state.blogCategory);
   const { images } = useSelector((state) => state.upload);
-  const { isSuccess, isError, createdBlog } = useSelector(
+  const { isSuccess, isError, createdBlog, updatedBlog, blog } = useSelector(
     (state) => state.blog
   );
+  console.log("Blog: ", blog.images);
+  useEffect(() => {
+    if (getBlogId !== undefined) {
+      dispatch(getBlog(getBlogId));
+    } else {
+      dispatch(resetState());
+    }
+  }, [getBlogId]);
+
+  useEffect(() => {
+    dispatch(resetState());
+    dispatch(getAllBlogCategory());
+  }, []);
+
   useEffect(() => {
     if (isSuccess && createdBlog) {
       toast("Created New Blog!");
     }
+    if (isSuccess && updatedBlog) {
+      toast("Updated Blog!");
+    }
     if (isError) {
       toast.error("Something went wrong!");
     }
-  }, [isSuccess, isError]);
+  }, [isSuccess, isError, createdBlog, updatedBlog]);
   const formik = useFormik({
+    enableReinitialize: true,
     initialValues: {
-      title: "",
-      description: "",
-      category: "",
-      images: [],
+      title: blog.title || "",
+      description: blog.description || "",
+      category: blog.category || "",
+      images: blog.images || [],
     },
     validationSchema: schema,
     onSubmit: (values) => {
-      dispatch(createBlog(values));
+      if (getBlogId !== undefined) {
+        const data = { id: getBlogId, blogData: values };
+        dispatch(updateBlog(data));
+      } else {
+        dispatch(createBlog(values));
+      }
       formik.resetForm();
       setTimeout(() => {
         dispatch(resetState());
@@ -64,11 +92,13 @@ const Addblog = () => {
       }, 3000);
     },
   });
-  formik.values.images = images;
+  if (blog?.images?.length < 1) {
+    formik.values.images = images;
+  }
 
   return (
     <div>
-      <h3 className="mb-4 title">Add Blog</h3>
+      <h3 className="mb-4 title">{getBlogId ? "Update" : "Add"} Blog</h3>
       <Stepper
         steps={[
           { label: "Add Blog Details" },
@@ -163,7 +193,7 @@ const Addblog = () => {
             })}
           </div>
           <button className="btn btn-success border-0 rounded-3 my-5">
-            Add Blog
+            {getBlogId ? "Update" : "Add"} Blog
           </button>
         </form>
       </div>
