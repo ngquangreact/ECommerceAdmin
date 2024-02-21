@@ -18,6 +18,15 @@ const getAllOrder = async () => {
   return response.data;
 };
 
-const authServices = { login, getAllOrder };
+const getOrdersByUserId = async (id) => {
+  const response = await axios.post(
+    `${baseUrl}user/get-orders-by-user/${id}`,
+    "",
+    headersConfig
+  );
+  return response.data;
+};
+
+const authServices = { login, getAllOrder, getOrdersByUserId };
 
 export default authServices;

@@ -2,6 +2,8 @@ import React, { useEffect } from "react";
 import { Button, Table } from "antd";
 import { useDispatch, useSelector } from "react-redux";
 import { getAllOrder } from "../features/auth/authSlice";
+import { Link } from "react-router-dom";
+import { AiFillDelete, AiOutlineEye } from "react-icons/ai";
 
 const columns = [
   {
@@ -20,6 +22,10 @@ const columns = [
     title: "Date",
     dataIndex: "date",
   },
+  {
+    title: "Action",
+    dataIndex: "action",
+  },
 ];
 const Orders = () => {
   const dispatch = useDispatch();
@@ -33,6 +39,22 @@ const Orders = () => {
       name: `${order.orderBy.firstname} ${order.orderBy.lastname}`,
       amount: `$ ${order.paymentIntent.amount}`,
       date: new Date(order.createdAt).toLocaleString(),
+      action: (
+        <>
+          <Link
+            className="ms-3 fs-3 bg-transparent border-0"
+            to={`/admin/orders/${order.orderBy._id}`}
+          >
+            <AiOutlineEye />
+          </Link>
+          <button
+            className="ms-3 fs-3 text-danger bg-transparent border-0"
+            // onClick={() => showModal(enquiry._id)}
+          >
+            <AiFillDelete />
+          </button>
+        </>
+      ),
     };
   });
   console.log(orders);
